@@ -1,30 +1,10 @@
-/**
- * Campo Minado — tabuleiro 18 x 14 (18 colunas x 14 linhas) com 40 bombas.
- *
- * Coordenadas: (linha, coluna), começando em 0.
- *   linha  0..13
- *   coluna 0..17
- *
- * Visão do jogador (obterVisao): matriz linhas x colunas de strings
- *   '#' célula oculta | 'F' bandeira | '*' mina revelada | '0'..'8' minas vizinhas
- */
 const { CampoMinado } = require('../src/campoMinado');
 
 const LINHAS = 14;
 const COLUNAS = 18;
-const TOTAL_CELULAS = LINHAS * COLUNAS; // 252
+const TOTAL_CELULAS = LINHAS * COLUNAS;
 const BOMBAS = 40;
 
-/**
- * Layout fixo com 40 minas formando "paredes":
- *   coluna 4  inteira (14 minas)
- *   coluna 9  inteira (14 minas)
- *   coluna 14 nas linhas 0..11 (12 minas)
- * Regiões seguras:
- *   A = colunas 0..3   (56 células)
- *   B = colunas 5..8   (56 células)
- *   C = colunas 10..13 + coluna 14 linhas 12..13 + colunas 15..17 (100 células)
- */
 const MINAS_PAREDES = [
   ...Array.from({ length: 14 }, (_, l) => [l, 4]),
   ...Array.from({ length: 14 }, (_, l) => [l, 9]),
@@ -33,7 +13,6 @@ const MINAS_PAREDES = [
 
 const novoJogo = () => new CampoMinado({ minas: MINAS_PAREDES });
 
-/** Gerador pseudoaleatório determinístico (mulberry32). */
 function rngComSemente(semente) {
   let a = semente;
   return () => {
@@ -155,17 +134,17 @@ describe('contarMinasVizinhas', () => {
 
   test.each([
     [0, 0, 0],
-    [0, 3, 2], // (0,4) e (1,4)
-    [5, 3, 3], // (4,4) (5,4) (6,4)
-    [13, 3, 2], // (12,4) (13,4)
-    [5, 5, 3], // coluna 4
+    [0, 3, 2],
+    [5, 3, 3],
+    [13, 3, 2],
+    [5, 5, 3],
     [5, 6, 0],
-    [5, 8, 3], // coluna 9
-    [0, 13, 2], // (0,14) (1,14)
-    [11, 13, 2], // (10,14) (11,14)
-    [12, 13, 1], // (11,14)
+    [5, 8, 3],
+    [0, 13, 2],
+    [11, 13, 2],
+    [12, 13, 1],
     [13, 13, 0],
-    [12, 15, 1], // (11,14)
+    [12, 15, 1],
     [13, 17, 0],
   ])('(%i, %i) tem %i mina(s) vizinha(s)', (l, c, n) => {
     expect(jogo.contarMinasVizinhas(l, c)).toBe(n);
@@ -200,8 +179,8 @@ describe('revelar', () => {
     expect(visao[0][0]).toBe('0');
     expect(visao[0][3]).toBe('2');
     expect(visao[5][3]).toBe('3');
-    expect(visao[0][4]).toBe('#'); // mina continua oculta
-    expect(visao[0][5]).toBe('#'); // região B não é aberta
+    expect(visao[0][4]).toBe('#');
+    expect(visao[0][5]).toBe('#');
     expect(jogo.estado).toBe('jogando');
   });
 
@@ -329,10 +308,10 @@ describe('derrota', () => {
 describe('vitória', () => {
   test('revelar todas as células sem mina vence (bandeiras não são necessárias)', () => {
     const jogo = novoJogo();
-    jogo.revelar(0, 0); // A
-    jogo.revelar(0, 6); // B
+    jogo.revelar(0, 0);
+    jogo.revelar(0, 6);
     expect(jogo.estado).toBe('jogando');
-    jogo.revelar(0, 11); // C
+    jogo.revelar(0, 11);
     expect(jogo.celulasReveladas).toBe(TOTAL_CELULAS - BOMBAS);
     expect(jogo.estado).toBe('vitoria');
   });
